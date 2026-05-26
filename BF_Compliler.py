@@ -27,6 +27,7 @@ import numpy as np
 import os
 import sys
 import argparse
+import pyfiglet
 
 parser = argparse.ArgumentParser("BF Compiler")
 parser.add_argument("file", nargs="?", help="The path to the file that will be compiled", type=str, default="ZGVmYXVsdA==")
