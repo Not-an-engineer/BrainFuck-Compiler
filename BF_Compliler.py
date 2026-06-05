@@ -28,6 +28,10 @@ import os
 import sys
 import argparse
 import pyfiglet
+import colorama
+from colorama import Fore, Style
+
+colorama.init()
 
 parser = argparse.ArgumentParser("BF Compiler")
 parser.add_argument("file", nargs="?", help="The path to the file that will be compiled", type=str, default="ZGVmYXVsdA==")
@@ -39,9 +43,34 @@ def get_file():
 	if str(args.file) == "ZGVmYXVsdA==":
 		for dl in os.listdir():
 			if ending in dl:
-				print(args.file)
+				return dl
 	else:
 		if ending in args.file:
-			print(args.file)
+			return args.file
+		else:
+			print("No file found")
 
-get_file()
+
+def remove_comments(code):
+	operators = ['>', '<', '+', '-', '[', ']', ',', '.']
+	return ''.join([c for c in code if c in operators])
+
+def read_code(file):
+	with open(file, 'r') as f:
+		code = f.read()
+	return remove_comments(code)
+
+def banner():
+	print(pyfiglet.figlet_format("BF Compiler", font="slant"))
+	print("Compiling " + file + "...\n")
+	print("Code: " + read_code(file) + "\n")
+
+
+
+
+
+file = get_file()
+read_code(file)
+
+banner()
+
