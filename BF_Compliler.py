@@ -27,11 +27,19 @@ import numpy as np
 import os
 import sys
 import argparse
-import pyfiglet
+import keyboard
+import time
+from rich.console import Console
+from rich.live import Live
+from rich.layout import Layout
+from rich.panel import Panel
+from bangen.rendering import RenderEngine
+from bangen.gradients import Gradient, ColorStop
+from bangen.effects import *
 import colorama
 from colorama import Fore, Style
 
-colorama.init()
+colorama.init(autoreset=True)
 
 parser = argparse.ArgumentParser("BF Compiler")
 parser.add_argument("file", nargs="?", help="The path to the file that will be compiled", type=str, default="ZGVmYXVsdA==")
@@ -56,21 +64,49 @@ def remove_comments(code):
 	return ''.join([c for c in code if c in operators])
 
 def read_code(file):
-	with open(file, 'r') as f:
-		code = f.read()
-	return remove_comments(code)
+	try:
+		with open(file, 'r') as f:
+			code = f.read()
+		return remove_comments(code)
+	except (TypeError, FileNotFoundError):
+		return "Fore.RED + Error: File not found or invalid file type. Please provide a valid .bf file."
 
-def banner():
-	print(pyfiglet.figlet_format("BF Compiler", font="slant"))
-	print("Compiling " + file + "...\n")
-	print("Code: " + read_code(file) + "\n")
+def banner(file):
+	engine = RenderEngine()
+	banner = engine.render("BF Compiler", font="slant")
+	gradient_stops = [
+		ColorStop(0.0, "#00ffff"),
+		ColorStop(0.5, "#ff00ff"),
+		ColorStop(1.0, "#ffff00"),
+	]
+	banner.set_gradient(Gradient(stops=gradient_stops, direction="horizontal"))
+	banner.apply(FlickerEffect()).apply(ScanlineEffect()).apply(GlitchEffect()).apply(NoiseInjectionEffect())
 
+	layout = Layout()
+	layout.split_column(
+		Layout(name="banner", ratio=4),
+		Layout(name="info", ratio=1),
+	)
+	file_display = file if file else "No .bf file found"
+	layout["info"].update(Panel(f"File: {file_display}", style="dim cyan"))
 
-
-
+	console = Console()
+	start = time.time()
+	with Live(layout, console=console, refresh_per_second=20):
+		# while True:
+			t = time.time() - start
+			# if t >= 3.0:
+			# 	break
+			layout["banner"].update(banner.render_frame(t))
+			#time.sleep(1 / 20)
 
 file = get_file()
-read_code(file)
+banner(file)
 
-banner()
+running = True
+while running:
+	if keyboard.is_pressed('esc'):
+		print("Exiting...")
+		running = False
+
 
