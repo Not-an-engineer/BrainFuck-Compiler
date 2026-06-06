@@ -23,12 +23,16 @@
 
 
 
+from tracemalloc import start
+
 import numpy as np
 import os
 import sys
 import argparse
 import keyboard
 import time
+from tqdm import tqdm
+from alive_progress import *
 from rich.console import Console
 from rich.live import Live
 from rich.layout import Layout
@@ -72,6 +76,7 @@ def read_code(file):
 		return "Fore.RED + Error: File not found or invalid file type. Please provide a valid .bf file."
 
 def banner(file):
+	global layout, console, start, banner
 	engine = RenderEngine()
 	banner = engine.render("BF Compiler", font="slant")
 	gradient_stops = [
@@ -85,28 +90,30 @@ def banner(file):
 	layout = Layout()
 	layout.split_column(
 		Layout(name="banner", ratio=4),
-		Layout(name="info", ratio=1),
+		Layout(name="info", ratio=2),
 	)
 	file_display = file if file else "No .bf file found"
 	layout["info"].update(Panel(f"File: {file_display}", style="dim cyan"))
 
 	console = Console()
+	console.clear()
 	start = time.time()
-	with Live(layout, console=console, refresh_per_second=20):
-		# while True:
-			t = time.time() - start
-			# if t >= 3.0:
-			# 	break
-			layout["banner"].update(banner.render_frame(t))
-			#time.sleep(1 / 20)
+	# with Live(layout, console=console, refresh_per_second=20):
+	# 	# while True:
+	# 		t = time.time() - start
+	# 		# if t >= 3.0:
+	# 		# 	break
+	# 		layout["banner"].update(banner.render_frame(t))
+	# 		#time.sleep(1 / 20)
 
 file = get_file()
 banner(file)
 
 running = True
-while running:
-	if keyboard.is_pressed('esc'):
-		print("Exiting...")
-		running = False
-
-
+with Live(layout, console=console, refresh_per_second=20):
+	while running:
+		if keyboard.is_pressed('esc'):
+			print("Exiting...")
+			running = False
+		t = time.time() - start
+		layout["banner"].update(banner.render_frame(t))
