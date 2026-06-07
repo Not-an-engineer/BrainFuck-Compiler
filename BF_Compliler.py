@@ -24,22 +24,26 @@
 
 
 from tracemalloc import start
-
+# Standard libraries
 import numpy as np
 import os
 import sys
 import argparse
 import keyboard
 import time
+# Progress bars and terminal rendering
 from tqdm import tqdm
 from alive_progress import *
+# Rich for terminal rendering
 from rich.console import Console
 from rich.live import Live
 from rich.layout import Layout
 from rich.panel import Panel
+# Bangen for rendering the banner
 from bangen.rendering import RenderEngine
 from bangen.gradients import Gradient, ColorStop
 from bangen.effects import *
+# Colorama for colored terminal output
 import colorama
 from colorama import Fore, Style
 
