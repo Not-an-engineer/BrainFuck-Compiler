@@ -21,10 +21,16 @@
 # Loops may be nested as many times as you want. But all [ must have a corresponding ].
 
 
+# TODO: fix cloned display above in cmd
+# TODO: fix updating flashing issue
+# DONE: fix layout proportions
+# TODO: add in loops
+# TODO: add in user input and output
 
-
+from ast import JoinedStr
 from tracemalloc import start
 # Standard libraries
+import alive_progress
 import numpy as np
 import os
 import sys
@@ -32,9 +38,9 @@ import argparse
 import keyboard
 import time
 # Progress bars and terminal rendering
-from tqdm import tqdm
 from alive_progress import *
 # Rich for terminal rendering
+from rich import panel
 from rich.console import Console
 from rich.live import Live
 from rich.layout import Layout
@@ -53,6 +59,11 @@ parser = argparse.ArgumentParser("BF Compiler")
 parser.add_argument("file", nargs="?", help="The path to the file that will be compiled", type=str, default="ZGVmYXVsdA==")
 args = parser.parse_args()
 
+memory_tape = np.zeros(1)
+tape_position = 0
+
+compiled = False
+
 ending = ".bf"
 
 def get_file():
@@ -65,7 +76,6 @@ def get_file():
 			return args.file
 		else:
 			print("No file found")
-
 
 def remove_comments(code):
 	operators = ['>', '<', '+', '-', '[', ']', ',', '.']
@@ -93,22 +103,79 @@ def banner(file):
 
 	layout = Layout()
 	layout.split_column(
-		Layout(name="banner", ratio=4),
-		Layout(name="info", ratio=2),
+		Layout(name="banner", ratio=3),
+		Layout(name="info", ratio=7),
 	)
-	file_display = file if file else "No .bf file found"
-	layout["info"].update(Panel(f"File: {file_display}", style="dim cyan"))
+
+	file_display = "Found .bf file. Compilling..." if file else "No .bf file found"
 
 	console = Console()
 	console.clear()
 	start = time.time()
-	# with Live(layout, console=console, refresh_per_second=20):
-	# 	# while True:
-	# 		t = time.time() - start
-	# 		# if t >= 3.0:
-	# 		# 	break
-	# 		layout["banner"].update(banner.render_frame(t))
-	# 		#time.sleep(1 / 20)
+	with Live(layout, console=console, refresh_per_second=20):
+		with alive_bar(len(read_code(file)) * 1, disable=True, ) as bar:
+			for _ in range(len(read_code(file)) * 1):
+				t = time.time() - start
+				# if t >= 3.0:
+				#  	break
+
+				layout["banner"].update(banner.render_frame(t))
+				bar()
+				visual_compiler_bar = bar.receipt()
+				layout["info"].update(Panel(f"{file_display}\n{visual_compiler_bar}", style="dim cyan"))
+				time.sleep(1 / 20)
+
+def compile_file(file_contents, memory_tape, tape_position, position):
+	# TODO: add back the bar
+	#with alive_bar(len(file_contents), disable=True) as bar:
+	for char in file_contents:
+		if char == "+":
+			memory_tape[tape_position] += 1
+		if char == "-":
+			if memory_tape[tape_position] - 1 >= 0:
+				memory_tape[tape_position] -= 1
+		if char == "<":
+			if tape_position - 1 >= 0:
+				tape_position -= 1
+		if char == ">":
+			try:
+				memory_tape[tape_position+1]
+			except:
+				# TODO: if possible make this line simpler
+				memory_tape = np.append(memory_tape, 0)
+			tape_position += 1
+		if char == ",":
+			tape_position += 0
+		if char == ".":
+			tape_position += 0
+		#memory_tape_display(memory_tape, tape_position)
+		#file_contents_display(file_contents, position)
+		update_banner_visual()
+		layout["info"].update(Panel(memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position), style="dim cyan"))
+		position += 1
+		time.sleep(2/len(file_contents))
+
+def memory_tape_display(memory_tape, tape_position):
+	arrow_display_tape = " "
+	for i in range(tape_position):
+		arrow_display_tape = "".join([arrow_display_tape, "   "])
+	arrow_display_tape = "".join([arrow_display_tape, "^"])
+	#layout["info"].update(Panel(f"{memory_tape}\n{arrow_display_tape}", style="dim cyan"))
+	return f"{memory_tape}\n{arrow_display_tape}"
+
+def file_contents_display(file_contents, position):
+	arrow_display_content = ""
+	for i in range(position):
+		arrow_display_content = "".join([arrow_display_content, " "])
+	arrow_display_content = "".join([arrow_display_content, "^"])
+	#layout["info"].update(Panel(f"\n\n{file_contents}\n{arrow_display_content}", style="dim cyan"))
+	return f"\n\n{file_contents}\n{arrow_display_content}"
+
+def update_banner_visual():
+	for i in range(1):
+		t = time.time() - start
+		layout["banner"].update(banner.render_frame(t))
+
 
 file = get_file()
 banner(file)
@@ -119,5 +186,13 @@ with Live(layout, console=console, refresh_per_second=20):
 		if keyboard.is_pressed('esc'):
 			print("Exiting...")
 			running = False
-		t = time.time() - start
-		layout["banner"].update(banner.render_frame(t))
+		update_banner_visual()
+		#t = time.time() - start
+		#layout["banner"].update(banner.render_frame(t))
+		# file_contents = read_code(file)
+		# for c in range(len(file_contents)):
+		# 	layout["info"].update(Panel(f"{c}", style="dim cyan"))
+		# 	time.sleep(0.2)
+		if not compiled:
+			compile_file(read_code(file), memory_tape, tape_position, 0)
+			compiled = True
