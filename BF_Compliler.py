@@ -21,11 +21,11 @@
 # Loops may be nested as many times as you want. But all [ must have a corresponding ].
 
 
-# TODO: fix cloned display above in cmd
-# TODO: fix updating flashing issue
 # DONE: fix layout proportions
 # TODO: add in loops
 # TODO: add in user input and output
+# TODO: fix cloned display above in cmd
+# TODO: fix updating flashing issue
 
 from ast import JoinedStr
 from tracemalloc import start
@@ -127,33 +127,34 @@ def banner(file):
 
 def compile_file(file_contents, memory_tape, tape_position, position):
 	# TODO: add back the bar
-	#with alive_bar(len(file_contents), disable=True) as bar:
-	for char in file_contents:
-		if char == "+":
-			memory_tape[tape_position] += 1
-		if char == "-":
-			if memory_tape[tape_position] - 1 >= 0:
-				memory_tape[tape_position] -= 1
-		if char == "<":
-			if tape_position - 1 >= 0:
-				tape_position -= 1
-		if char == ">":
-			try:
-				memory_tape[tape_position+1]
-			except:
-				# TODO: if possible make this line simpler
-				memory_tape = np.append(memory_tape, 0)
-			tape_position += 1
-		if char == ",":
-			tape_position += 0
-		if char == ".":
-			tape_position += 0
-		#memory_tape_display(memory_tape, tape_position)
-		#file_contents_display(file_contents, position)
-		update_banner_visual()
-		layout["info"].update(Panel(memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position), style="dim cyan"))
-		position += 1
-		time.sleep(2/len(file_contents))
+	with alive_bar(len(file_contents), disable=True, length=34) as bar:
+		for char in file_contents:
+			if char == "+":
+				memory_tape[tape_position] += 1
+			if char == "-":
+				if memory_tape[tape_position] - 1 >= 0:
+					memory_tape[tape_position] -= 1
+			if char == "<":
+				if tape_position - 1 >= 0:
+					tape_position -= 1
+			if char == ">":
+				try:
+					memory_tape[tape_position+1]
+				except:
+					# TODO: if possible make this line simpler
+					memory_tape = np.append(memory_tape, 0)
+				tape_position += 1
+			if char == ",":
+				tape_position += 0
+			if char == ".":
+				tape_position += 0
+			#memory_tape_display(memory_tape, tape_position)
+			#file_contents_display(file_contents, position)
+			update_banner_visual()
+			layout["info"].update(Panel(memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position) + f"\n" + bar.receipt(), style="dim cyan"))
+			bar()
+			position += 1
+			time.sleep(2/len(file_contents))
 
 def memory_tape_display(memory_tape, tape_position):
 	arrow_display_tape = " "
@@ -169,7 +170,7 @@ def file_contents_display(file_contents, position):
 		arrow_display_content = "".join([arrow_display_content, " "])
 	arrow_display_content = "".join([arrow_display_content, "^"])
 	#layout["info"].update(Panel(f"\n\n{file_contents}\n{arrow_display_content}", style="dim cyan"))
-	return f"\n\n{file_contents}\n{arrow_display_content}"
+	return f"\n{file_contents}\n{arrow_display_content}"
 
 def update_banner_visual():
 	for i in range(1):
