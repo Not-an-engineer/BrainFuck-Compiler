@@ -22,6 +22,8 @@
 
 
 # DONE: fix layout proportions
+# TODO: make the file_display show file name
+# TODO: simplify imports
 # TODO: add in loops
 # TODO: add in user input and output
 # TODO: fix cloned display above in cmd
@@ -127,7 +129,7 @@ def banner(file):
 
 def compile_file(file_contents, memory_tape, tape_position, position):
 	# TODO: add back the bar
-	with alive_bar(len(file_contents), disable=True, length=34) as bar:
+	with alive_bar(len(file_contents), disable=True, length=33) as bar:
 		for char in file_contents:
 			if char == "+":
 				memory_tape[tape_position] += 1
@@ -151,8 +153,8 @@ def compile_file(file_contents, memory_tape, tape_position, position):
 			#memory_tape_display(memory_tape, tape_position)
 			#file_contents_display(file_contents, position)
 			update_banner_visual()
-			layout["info"].update(Panel(memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position) + f"\n" + bar.receipt(), style="dim cyan"))
 			bar()
+			layout["info"].update(Panel(f"\n" + memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position) + f"\n" + bar.receipt(), style="dim cyan"))
 			position += 1
 			time.sleep(2/len(file_contents))
 
@@ -162,7 +164,7 @@ def memory_tape_display(memory_tape, tape_position):
 		arrow_display_tape = "".join([arrow_display_tape, "   "])
 	arrow_display_tape = "".join([arrow_display_tape, "^"])
 	#layout["info"].update(Panel(f"{memory_tape}\n{arrow_display_tape}", style="dim cyan"))
-	return f"{memory_tape}\n{arrow_display_tape}"
+	return f" {memory_tape}\n {arrow_display_tape}"
 
 def file_contents_display(file_contents, position):
 	arrow_display_content = ""
@@ -170,7 +172,7 @@ def file_contents_display(file_contents, position):
 		arrow_display_content = "".join([arrow_display_content, " "])
 	arrow_display_content = "".join([arrow_display_content, "^"])
 	#layout["info"].update(Panel(f"\n\n{file_contents}\n{arrow_display_content}", style="dim cyan"))
-	return f"\n{file_contents}\n{arrow_display_content}"
+	return f"\n {file_contents}\n {arrow_display_content}"
 
 def update_banner_visual():
 	for i in range(1):
