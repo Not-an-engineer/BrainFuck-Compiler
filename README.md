@@ -1,5 +1,5 @@
 # BrainFuck-Compiler
-A compiler for BrainFuck made in Python.
+A compiler for BrainFuck made in Python. Well it actually is an interpreter, but I'm to lazy to rename it...
 
 ### TODO:
 - [x] fix layout proportions
