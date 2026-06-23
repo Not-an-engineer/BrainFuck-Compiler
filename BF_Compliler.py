@@ -22,10 +22,10 @@
 
 
 # DONE: fix layout proportions
-# TODO: make the file_display show file name
+# DONE: make the file_display show file name
 # TODO: simplify imports
 # TODO: add in loops
-# TODO: add in user input and output
+# TODO: add in user input and output (, and .)
 # TODO: fix cloned display above in cmd
 # TODO: fix updating flashing issue
 
@@ -109,7 +109,7 @@ def banner(file):
 		Layout(name="info", ratio=7),
 	)
 
-	file_display = "Found .bf file. Compilling..." if file else "No .bf file found"
+	file_display = f"Found .bf file: {file}. Compilling..." if file else "No .bf file found"
 
 	console = Console()
 	console.clear()
@@ -129,6 +129,7 @@ def banner(file):
 
 def compile_file(file_contents, memory_tape, tape_position, position):
 	# TODO: add back the bar
+	# idk what this ^ is about bruh
 	with alive_bar(len(file_contents), disable=True, length=33) as bar:
 		for char in file_contents:
 			if char == "+":
@@ -144,6 +145,7 @@ def compile_file(file_contents, memory_tape, tape_position, position):
 					memory_tape[tape_position+1]
 				except:
 					# TODO: if possible make this line simpler
+					# i think its pretty simple already
 					memory_tape = np.append(memory_tape, 0)
 				tape_position += 1
 			if char == ",":
@@ -154,7 +156,7 @@ def compile_file(file_contents, memory_tape, tape_position, position):
 			#file_contents_display(file_contents, position)
 			update_banner_visual()
 			bar()
-			layout["info"].update(Panel(f"\n" + memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position) + f"\n" + bar.receipt(), style="dim cyan"))
+			layout["info"].update(Panel(f"\n" + f" File: {file}\n" + f"\n" + memory_tape_display(memory_tape, tape_position) + file_contents_display(file_contents, position) + f"\n" + bar.receipt(), style="dim cyan"))
 			position += 1
 			time.sleep(2/len(file_contents))
 
