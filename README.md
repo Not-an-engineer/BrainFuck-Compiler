@@ -6,6 +6,6 @@ A compiler for BrainFuck made in Python. Well it actually is an interpreter, but
 - [x] make the file_display show file name
 - [ ] simplify imports
 - [ ] add in loops
-- [ ] add in user input and output
+- [ ] add in user input and output (, and .)
 - [ ] fix cloned display above in cmd
 - [ ] fix updating flashing issue
